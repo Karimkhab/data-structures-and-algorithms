@@ -1,0 +1,148 @@
+\documentclass[dvipsnames]{article}
+\usepackage[english]{babel}
+\usepackage{multirow}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{enumerate}
+
+\begin{document}
+\section*{Week 5. Problem set (solutions by Karim Khabibrakhmanov)}
+
+\thispagestyle{fancy}
+\lhead{Karim Khabibrakhmanov (\texttt{k.khabibrakhmanov@innopolis.university}), group B24-DSAI-05}
+
+In a fictional multiplayer video game ``Dragons and Pirates'', each player can select one of tree character classes:
+  a \textsc{Knight}, a \textsc{Pirate}, or a \textsc{Cook}. A team of 5 players wants to optimize their chances at the game
+  by choosing the right combination of classes for each player in the team. When multiple players take the same class,
+  their powers overlap, leading to an uneven increase in performance. For example, in the game multiple Knights cannot attack an enemy simultaneously,
+  so overall performance metric for three Knights is less than three times the performance of a single Knight.
+  
+  The table below gives the estimated performance for each character class for each possible number of players of the same class.
+  Total performance of a team is the sum of performances for each class.
+  
+  \begin{enumerate}
+    \item Describe a general algorithm that would find an optimal class assignments
+      for any number $P$ of players, any number $C$ of classes, and table \texttt{E} with estimates:
+      \begin{enumerate}
+        \item Summarize the idea for a na\"ive recursive algorithm.
+
+        \color{blue}
+        \textbf{Answer:} In a function, we recursively call C functions and so on P times. The recursion occurs without any optimizations, going through all possible class cases for each player. In the end, we simply return the maximum.
+        \color{black}
+
+        \item Clearly identify \emph{overlapping subproblems}~\cite[\S 14.3]{Cormen2022} (provide an explicit example for this problem).
+
+        \color{blue}
+        \textbf{Answer:} Overlapping subproblems occur when the algorithm computes the same cases multiple times.\\Let's say we have 2 classes (C = 2) and 4 players (P = 4):\\
+        \begin{enumerate}
+            \item We take class 1 and class 2 and calculate the remaining case for 2 players\\
+            \item We take class 2 and class 1 and calculate the same case again\\
+        \end{enumerate}
+In the (2), we calculate the same case twice. This is overlapping subproblems.
+        \color{black}
+
+        \item Write down pseudocode for the dynamic programming~\cite[\S 14]{Cormen2022} algorithm that solves the problem (top-down or bottom-up).
+          It is enough to compute the optimal performance without keeping track of the exact class assignments.
+
+        \color{blue}
+        \textbf{Answer:}\\
+        \begin{minted}[linenos,escapeinside=||]{python}
+matrixForOverlap[P+1][C+1] = all element null
+OptimalSolution(row, column):
+    if (row==0 or column==0)
+        return 0
+    if (matrixForOverlap[row][column] != null)
+        return matrixForOverlap[row][column]
+    max = 0
+    for i from 0 to row:
+        value = E[column - 1][i] + OptimalSolution(row - i, column - 1)
+        if value > max:
+            max = value
+
+    matrixForOverlap[row][column] = max
+    return matrixForOverlap[row][column]
+\end{minted}
+        \color{black}
+      \end{enumerate}
+  
+    \item Provide asymptotic worst-case time complexity with justification
+        \begin{enumerate}
+          \item for the na\"ive recursive algorithm
+
+          \color{blue}
+          \textbf{Answer:} $\Theta(C^P)$ \\
+          In a function, we recursively call C functions and so on P times.\\
+          \color{black}
+
+          \item for the dynamic programming algorithm
+
+          \color{blue}
+         \textbf{Answer:} $\Theta(C \cdot P^2)$ \\
+        The matrixForOverlap consists of $(P+1) \cdot (C+1)$ elements. For each table element, the function executes a loop that runs a maximum of \textit{row} times. The maximum number of loop iterations is $O(P)$, since \textit{row} can be no more than $P$. Therefore, the time complexity is $\Theta((C+1) \cdot (P+1)\cdot P) = \Theta(C \cdot P^2)$.\\
+          
+          \color{black}
+        \end{enumerate}
+
+    \item Apply the dynamic programming algorithm to an instance of the problem below with 3 classes and 6 players:
+    \begin{enumerate}
+      \item What is the best possible performance? What combination of classes gives that performance?
+
+      \color{blue}
+      \textbf{Answer:}\\
+      We use (3 Cook, 2 Pirate and 1 Knight) or the option (3 Cook, 1 Pirate and 2 Knight) is also suitable. The maximum will be 70.
+      \color{black}
+
+      \item Provide the table with solutions used in the dynamic programming algorithm for subproblems that are computed in the algorithm.
+  
+  \begin{center}
+    \begin{tabular}{ |c||c|c|c|c|c|c|c| }
+      \hline
+      Number of players & 0 & 1 & 2 & 3 & 4 & 5 & 6 \\
+      \hline
+      \hline
+      \textsc{Knight} & 0   & 12  & 23  & 33  & 42  & 55 & 62 \\
+      \hline
+      \textsc{Pirate} & 0   & 13  & 24  & 33  & 40  & 45 & 50 \\
+      \hline
+      \textsc{Cook}   & 0   & 11  & 22  & 34  & 43  & 52 & 61 \\
+      \hline
+    \end{tabular}
+  \end{center}
+
+  \color{blue}
+  \textbf{Answer:}\\
+  \begin{center}
+    \begin{tabular}{ |c||c|c|c|c|c|c|c| }
+      \hline
+      Number of players & 0 & 1 & 2 & 3 & 4 & 5 & 6 \\
+      \hline
+      \hline
+      \textsc 0 & 0   & 0  & 0  & 0  & 0  & 0 & 0 \\
+      \hline
+      \textsc{Knight} & 0   & 12  & 23  & 33  & 42  & 55 & 62 \\
+      \hline
+      \textsc{Pirate} & 0   & 13  & 25  & 36  & 47  & 58 & 68 \\
+      \hline
+      \textsc{Cook}   & 0   & 13  & 25  & 36  & 47  & 59 & 70 \\
+      \hline
+    \end{tabular}
+  \end{center}
+  \color{black}
+
+\end{enumerate}
+\end{enumerate}
+
+\begin{thebibliography}{BoasWrench}
+
+\bibitem[CLRS]{Cormen2022}
+Cormen, T.H., Leiserson, C.E., Rivest, R.L. and Stein, C., 2022. \emph{Introduction to algorithms, Fourth Edition}. MIT press.
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,169 @@
+\documentclass[dvipsnames]{article}
+\usepackage[english]{babel}
+\usepackage{multirow}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{fancyhdr}
+
+\begin{document}
+\section*{Week 3. Problem set (solutions by Karim Khabibrakhmanov)}
+
+\thispagestyle{fancy}
+\lhead{Karim Khabibrakhmanov (\texttt{k.khabibrakhmanov@innopolis.university}), group B24-DSAI-05}
+
+\begin{enumerate}
+
+  \item Consider a hash table with 13 slots and the hash function $h(k) = (k^2 - k + 11) \mod 13$.
+    Show the state of the hash table after inserting the keys (in this order)
+    \[
+      6,\;\; 28,\;\; 19,\;\; 15,\;\; 20,\;\; 33,\;\; 12,\;\; 17,\;\; 10,\;\; 13,\;\; 3,\;\; 39
+    \]
+    with collisions resolved by \emph{linear probing} \cite[\S 11.4]{Cormen2022}.
+
+    \begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+      \hline
+      Index & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 \\
+      \hline
+      Key   & 28 
+            & 15 
+            & 6 
+            & 19 
+            & 20 
+            & 33
+            & 12
+            & 3 
+            & 39
+            & 
+            & 17 
+            & 10 
+            & 13  \\
+      \hline
+    \end{tabular}
+    \end{center}
+
+    \color{blue}
+    \textbf{Answer:} \emph{
+    \begin{center}
+    \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+      \hline
+      Index & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 \\
+      \hline
+      Key   & 28 
+            & 15 
+            & 6 
+            & 19 
+            & 20 
+            & 33
+            & 12
+            & 3 
+            & 39
+            & 
+            & 17 
+            & 10 
+            & 13  \\
+      \hline
+    \end{tabular}
+    \end{center}} \\
+     \textbf{Justification (optional): } \\
+     For the following keys ($k$), we will use the hash function $h(k) = (k^2 - k + 11) \mod 13$. Since we are employing linear probing, if the calculated index is already occupied, we will insert the key at the next available empty index:\\
+    \begin{itemize}
+    \textbf{1)} $h(6) =  2$ -- Insert at index $2$.\\
+    \textbf{2)} $h(28) =  0$ -- Insert at index $0$.\\
+    \textbf{3)} $h(19) =  2$ -- Insert at index $3$.\\
+    \textbf{4)} $h(15) =  0$ -- Insert at index $1$.\\
+    \textbf{5)} $h(20) =  1$ -- Insert at index $4$.\\
+    \textbf{6)} $h(33) =  1$ -- Insert at index $5$.\\
+    \textbf{7)} $h(12) =  0$ -- Insert at index $6$.\\
+    \textbf{8)} $h(17) =  10$ -- Insert at index $10$.\\
+    \textbf{9)} $h(10) =  10$ -- Insert at index $11$.\\
+    \textbf{10)} $h(13) =  11$ -- Insert at index $12$.\\
+    \textbf{11)} $h(3) =  4$ -- Insert at index $7$.\\
+    \textbf{12)} $h(39) =  11$ -- Insert at index $8$.\\
+\end{itemize}
+    \color{black}
+
+  \item
+    Consider a dictionary that maps an integer (e.g. group number) and a short\footnote{Assume that strings have a relatively small constant maximum size.} string (e.g. student email) to a number (e.g. grade),
+    and is implemented as a hashtable $T$ of hashtables:
+    \begin{itemize}
+      \item for an integer $k$, if $T$ contains $k$, then $T[k]$ is a hashmap with string keys
+      \item for a string $s$, if $T[k]$ contains $s$, then $T[k][s]$ is a floating point number
+    \end{itemize}
+
+    Compute average case time complexities of successful and unsuccessful search in this hashtable of hashtables
+    with the different possible combinations of chaining and open addressing, assuming
+    \begin{enumerate}
+      \item \emph{independent uniform hashing} for hashtables with separate chaining~\cite[\S 11.2]{Cormen2022}
+      \item \emph{independent uniform permutation hashing} for hashtables with open addressing~\cite[\S 11.4]{Cormen2022}
+      \item for the hashtable $T$, load factor $\alpha$ and size $n$
+      \item for the hashtables $T[k]$, average load factor $\beta$ and average size $m$
+    \end{enumerate}
+
+    \begin{center}
+      \small
+    \bgroup
+    \def\arraystretch{1.2}%  1 is the default, change whatever you need
+    \begin{tabular}{ |p{9cm}||c|c| }
+     \hline
+       & Successful search & Unsuccessful search \\
+     \hline
+     \hline
+     $T$ uses separate chaining and each $T[k]$ uses separate chaining & \textcolor{blue}{\emph{$O(1+\alpha + \beta)$}} & \textcolor{blue}{\emph{$O(1+\alpha + \beta)$}} \\
+     \hline
+     $T$ uses separate chaining and each $T[k]$ uses open addressing & \textcolor{blue}{\emph{$O(1+\alpha + \frac{1}{\beta} \ln (\frac{1}{1-\beta}))$}} & \textcolor{blue}{\emph{$O(1+\alpha + \frac{1}{1-\beta})$}} \\
+     \hline
+     $T$ uses open addressing and each $T[k]$ uses separate chaining & \textcolor{blue}{\emph{$O(\frac{1}{\alpha} \ln (\frac{1}{1-\alpha}) + 1+\beta)$}} & \textcolor{blue}{\emph{$O(\frac{1}{1-\alpha} + 1+\beta)$}} \\
+     \hline
+     $T$ uses open addressing and each $T[k]$ uses open addressing & \textcolor{blue}{\emph{$O(\frac{1}{\alpha} \ln (\frac{1}{1-\alpha}) + \frac{1}{\beta} \ln (\frac{1}{1-\beta}))$}} & \textcolor{blue}{\emph{$O(\frac{1}{1-\alpha} + \frac{1}{1-\beta})$}} \\
+     \hline
+    \end{tabular}
+    \egroup
+    \normalsize
+    \end{center}
+
+  \item \textbf{(+0.5\% extra credit)}
+    Compute the average case time complexity of the following algorithm:
+
+    \begin{minted}[linenos,escapeinside=||]{sql}
+|\color{blue}secret|(M, k):
+  Q := new linked queue
+  |\color{red}while| M.hasKey(k) and k > 0
+    item := M.get(k)
+    k := min(item.value, k) - 1
+    if k == item.value - 1
+      Q.offer(item)
+  |\color{red}while| not Q.isEmpty()
+    M.remove(Q.poll())
+  |\color{red}return| k
+    \end{minted}
+
+    $M$ is a hashtable of size $n$ with load factor $\alpha$ that resolves collisions by
+    \emph{separate chaining}~\cite[\S 11.2]{Cormen2022}.
+    The answer \textbf{must} use $O$-notation and may depend on $n$, $k$, and $\alpha$.
+    Assume \emph{independent uniform hashing} and worst case for the contents (values) of the input map $M$.
+
+    Justify your answer (3--5 sentences). Detailed proof is not required.
+
+    \color{blue}
+    \textbf{Answer:} \emph{$O((\alpha+1)\cdot (k+1))$} \\
+    \textbf{Justification: }\\ In the worst case, the first while loop runs $k+1$ times, and the total complexity of the this loop is $O(a+1)$. The second while loop also run $k+1$ times, and its total complexity of the this loop is $O(a+1)$. Therefore, the overall complexity of following algorithm will be:\\
+    
+    \centering$O((\alpha+1)\cdot (k+1))$ + $O((\alpha+1)\cdot (k+1))$ = $O((\alpha+1)\cdot (k+1))$\\
+    \color{black}
+
+\end{enumerate}
+
+\begin{thebibliography}{BoasWrench}
+
+\bibitem[CLRS]{Cormen2022}
+Cormen, T.H., Leiserson, C.E., Rivest, R.L. and Stein, C., 2022. \emph{Introduction to algorithms, Fourth Edition}. MIT press.
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,280 @@
+\documentclass[dvipsnames]{article}
+\usepackage[english]{babel}
+\usepackage{multirow}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{enumerate}
+
+\begin{document}
+\section*{Week 4. Problem set (solutions by Karim Khabibrakhmanov)}
+
+\thispagestyle{fancy}
+\lhead{Karim Khabibrakhmanov (\texttt{k.khabibrakhmanov@innopolis.university}), group B24-DSAI-05}
+
+\begin{enumerate}
+
+  \item Compute asymptotic worst case time complexity of \texttt{solve} in terms of the size $n$ of the input list:
+  \begin{enumerate}[(i)]
+    \item Express the running time of the \texttt{solve} procedure $T(n)$ as a recurrence relation.
+    \item Find the asymptotic complexity of $T(n)$ using the master theorem.
+    \item Specify which case of the master theorem applies (if any).
+    \item Write down conditions for this case that need to be checked (write down specialized version for a particular recurrence).
+    \item Prove that the conditions are satisfied.
+    For asymptotic notation, each property used in a proof \textbf{must} be either
+    proven explicitly or properly referenced (e.g. by citing \cite{Cormen2022} or a particular Lecture/Tutorial slide).
+  \end{enumerate}
+
+  \begin{minted}[texcomments,linenos,escapeinside=||]{sql}
+    /* L is a linked list */
+    solve(L):
+      if L is empty
+        return 1
+      else
+        s = 1
+        B = new linked list
+        for j from 1 to 3 /* inclusive */
+          i = 0
+          A = L.head
+          while A.next is not null
+            b = (i >> j) & 3  /* $j$th and $(j+1)$th least significant bits of $i$ */
+            if b == 1
+              B.add(i / 2, A.value)
+            A = A.next
+            i = i + 1
+          s = s + helper(B)
+    \end{minted}
+
+    \color{blue}
+    \textbf{Answer:}
+    \begin{enumerate}[(i)]
+    \item $T(n) = 3 \cdot T(\frac{n}{4}) + \Theta(n )$
+    \item $T(n) = \Theta(n)$
+    \item Case 3.
+    \item If there exists a constant $ \epsilon > 0 $ such that $ f(n) = \Omega(n^{\log_b a + \epsilon}) $, and if $ f(n) $ additionally satisfies the regularity condition $ a \cdot f\left(\frac{n}{b}\right) \leq c \cdot f(n) $ for some constant $ c < 1 $ and all sufficiently large $ n $, then $ T(n) = \Theta(f(n))$.
+    
+    \item $ 3 \cdot \frac{n}{4} \leq c \cdot n $, if $ c = \frac{3}{4} < 1 $ \xrightarrow[]{} $ n \leq n $
+  \end{enumerate}
+   \textbf{Justification:} \\
+The loop iterates three times, matching the number of recursive calls.\\ The expression $b = (i >> j) \& 3$ adds every fourth element to list $B$ because the two bits extracted by $(i >> j) \& 3$ repeat cyclically every four numbers, and only the combination $01$ ($b == 1$) satisfies the condition. The function $f(n)$ is equal to $\Theta(n)$ because the reduction in the size of the list runs in linear time.\\
+\\
+For $T(n) = 3 \cdot T(\frac{n}{4}) + \Theta(n )$, where $ a = 3 > 0 $, $ b = 4 > 1 $, and $ f(n) = \Theta(n ) $, the recurrence relation satisfies the conditions of the Master Theorem:
+    \begin{itemize}
+        \item $ \log_{b} a =\log_{4} 3 \approx 0.793 $\\
+        \item Case 1: \\
+        \hspace{30mm} $ f(n) = \Theta(n ) = O(n^{\log_{b} a - \epsilon})= O(n^{0.793 - \epsilon}) $ - No, because $ \epsilon > 0 $ and $\Theta(n )$ grows faster.
+        \item Case 2: \\
+        \hspace{30mm} $ f(n) = \Theta(n )  = \Theta(n^{\log_{b} a}\cdot \log^k n)= \Theta(n^{0.793} \cdot \log^k n) $ - No, because $\Theta(n)$ grows faster than $\Theta(n^{0.793} \cdot \log^k n)$ for any $k$.
+        \item Case 3: \\
+        \hspace{30mm} $ f(n) = \Theta(n ) = \Omega(n^{\log_{b} a + \epsilon}) = \Omega(n^{0.793 + \epsilon}) $ - Yes. For $ \epsilon \approx 0.2 $, $ n^{0.793 + \epsilon} $ satisfies the condition. \\
+        \hspace{30mm}[\cite{Cormen2022}, Theorem 4.1 (Master theorem)] Let's check the regularity condition $ a \cdot f\left(\frac{n}{b}\right) \leq c \cdot f(n) $: \\
+        \hspace{35mm} $ 3 \cdot \Theta(\frac{n}{4} ) \leq c \cdot \Theta(n ) $ \\
+        \hspace{35mm}$ 3 \cdot \frac{n}{4} \leq c \cdot n $, if $ c = \frac{3}{4} < 1 $ \\
+        \hspace{35mm} $ n \leq n $. This condition is satisfied.
+    \end{itemize}
+    Answer: $ \Theta(n) $
+    \color{black}
+
+  \clearpage
+  \item Consider the following modification of the binary search algorithm~\cite[Exercise~2.3-6]{Cormen2022}:
+  given an input array $A$ of size $n$, a parameter $k$, and an integer value $x$
+  \begin{enumerate}
+    \item if the array is empty — stop with failure ($x$ not found)
+    \item if the size of the input array is $1$ and $A[0] = x$ — stop with success ($x$ is found)
+    \item otherwise, we create midpoints $m_i$ (for all integer indices $1 \leq i \leq k$)
+      \emph{evenly} spaced between start index $m_0 = 0$ and end index $m_{k+1} = n - 1$
+    \item we then find consecutive indices $m_i$ and $m_{i+1}$ such that $A[m_i] \leq x \leq A[m_{i+1}]$
+      and repeat the search on the subarray $A[m_i:m_{i+1}]$
+  \end{enumerate}
+
+  Compute the time complexity of this algorithm in terms of $n$ and $k$ using two different methods:
+  \begin{enumerate}[(i)]
+    \item Write down the running time $T(n)$ as a recurrent formula.
+    \item Apply the master theorem and get closed form formula for $T(n)$ (assume $k$ is a constant, the final answer may be independent of $k$):
+      \begin{enumerate}
+        \item Which case of the master theorem applies?
+        \item Write down the conditions for this case that need to be checked (write down specialized version for this particular recurrence).
+        \item Provide asymptotic complexity for $T(n)$ using $\Theta$-notation.
+      \end{enumerate}
+
+    \item Apply the substitution method and get closed form formula for $T(n, k)$ (treat $k$ as a parameter, the final answer should depend on $k$).
+    \item Which value of $k$ is optimal? Justify your answer (4--6 sentences).
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Answer:}
+  \begin{enumerate}[(i)]
+    \item $T(n) = T(\frac{n}{k+1}) + \Theta(k)$
+    \item $T(n) = \Theta(\log n)$
+    \item $T(n,k) = \Theta(k\cdot \log_{k+1} n)$
+    \item Optimal value of $k$ equal to $1$
+  \end{enumerate}
+  \textbf{Justification: }
+  \begin{enumerate}[(i)]
+    \item The general form of the recurrence relation is as follows:
+\[
+T(n) = a \cdot T\left(\frac{n}{b}\right) + f(n)
+\]
+\hspace{20em} In the binary search algorithm:
+\begin{itemize}
+    \item We have $a = 1$, because the function is called only once to repeat the search on the subarray $A[m_i : m_{i+1}]$.
+    \item $b = k + 1$, because the algorithm divides the array into $ k + 1 $ subarrays.
+\end{itemize}
+
+Thus, the recurrence relation for the algorithm is:
+\[
+T(n) = T\left(\frac{n}{k+1}\right) + \Theta(k)
+\]
+
+
+
+\item For $T(n) = T(\frac{n}{k+1}) + \Theta(k)$, where $ a = 1 > 0 $, $ b = k + 1 > 1 $ ($k \geq 1 $), and $ f(n) = \Theta(k)$, the recurrence relation satisfies the conditions of the Master Theorem:
+    \begin{itemize}
+        \item $ \log_{b} a =\log_{k+1} 1 = 0 $
+        \item Case 1: \\
+        \hspace{30mm} $ f(n) = \Theta(k) \neq O(n^{-\epsilon}) $ for any $ \epsilon > 0 $, because $ \Theta(k) $ is bounded below by a positive constant, while $ O(n^{-\epsilon}) $ tends to zero as $ n \to \infty $.
+        \item Case 2: \\
+        \hspace{30mm} $ f(n) = \Theta(k) = \Theta(n^{\log_{b} a}\cdot lg^k n) = \Theta(n^0\cdot lg^k n) = \Theta(lg^k n)$ - Yes, if $k = 0$.
+    \end{itemize}
+    Therefore, $\Theta(\log^1 n) = \Theta(\log n)$
+
+
+
+
+    
+   \item The substitution method:
+    \begin{itemize}
+        Suppose $n = b^i = (k+1)^i$\\
+        \hspace{30mm} $T((k+1)^i) = T((k+1)^{i-1}) + \Theta(k)$\\
+        \hspace{30mm} $T((k+1)^i) = T((k+1)^{i-2}) + \Theta(k) \cdot 2$\\
+        \hspace{30mm} $T((k+1)^i) = T((k+1)^{i-3}) + \Theta(k) \cdot 3$\\
+        \hspace{30mm} $\dots$\\
+        \hspace{30mm} $T((k+1)^i) = T(1) + \Theta(k) \cdot i$\\
+        \hspace{30mm} $i = \log_{k+1} n$, $T(n) = T(1) + \Theta(k) \cdot \log_{k+1} n$\\
+        \hspace{30mm} $T(n) = \Theta(k \cdot \log_{k+1} n)$\\
+    \end{itemize}
+
+\item Optimal value of $k$ is $1$ because $k \geq 1$ and the base of the logarithm satisfies the condition since $k + 1 \geq 2 > 1$. Since $\Theta(k \cdot \log_{k+1} n)$ increases with larger values of $k$, it is advantageous to choose the smallest possible value.
+  \end{enumerate}
+  \color{black}
+
+  \clearpage
+  \item For each of the following recurrences, apply the master theorem~\cite[Theorem~4.1]{Cormen2022} yielding a closed form formula
+  for the asymptotic complexity of $T(n)$.
+  Assume that $T(n) = 1$ when $n < 10$ for all recurrences below. You must specify the following:
+  \begin{itemize}
+    \item Can the theorem be applied to the recurrence?
+    \item If yes, then
+    \begin{enumerate}[(i)]
+      \item Which case of the master theorem applies?
+      \item Which conditions for this case that need to be checked (write down specialized version for a particular recurrence).
+      \item Prove that the condition is satisfied.
+      For asymptotic notation, each property used in a proof \textbf{must} be either
+      proven explicitly or properly referenced (e.g. by citing \cite{Cormen2022} or a particular Lecture/Tutorial slide).
+      \item Provide asymptotic complexity for $T(n)$ using $\Theta$-notation.
+    \end{enumerate}
+    \item Otherwise, provide an explicit justification, explaining why the theorem cannot be applied.
+  \end{itemize}
+  \begin{enumerate}
+    \item $T(n) = 6 T(n / 36) + \sqrt{n} \cdot \log_2^2 n$
+    \item $T(n) = 4 T(3 n / 8) + n^2$
+    \item $T(n) = 7 T(n / 5) + \log_2 \left(n!\right)$
+    \item $T(n) = 3 T(\sqrt[3]{n}) + n$               
+    \item $T(n) = \frac{1}{3} T(3n) + n \log_3 n$     
+  \end{enumerate}
+
+  \color{blue}
+  \textbf{Answer:}
+   \begin{enumerate}
+    \item $T(n) = \Theta(\sqrt{n} \cdot lg^3n)$
+    \item $T(n) =  \Theta(n^2)$
+    \item $T(n) = \Theta (n^{log_57})$
+    \item No answer              
+    \item No answer    
+  \end{enumerate}
+  \textbf{Justification: }
+    \begin{enumerate}
+
+    
+\item For $T(n) = 6 T(n / 36) + \sqrt{n} \cdot \log_2^2 n$, where $ a = 6 > 0 $, $ b = 36 > 1 $, and $ f(n) = \sqrt{n} \cdot \log_2^2 n $, the recurrence relation satisfies the conditions of the Master Theorem:
+    \begin{itemize}
+        \item $ \log_{b} a =\log_{36} 6 = \frac{1}{2} $
+        \item Case 1: \\
+        \hspace{30mm} $ f(n) = \sqrt{n} \cdot \log_2^2 n= O(n^{\log_{b} a - \epsilon}) = O(n^{\frac{1}{2} - \epsilon}) $ - No, because $ \epsilon > 0 $ and $ \sqrt{n} \cdot \log_2^2 n $ grows faster.
+        \item Case 2: \\
+        \hspace{30mm} $ f(n) = \sqrt{n} \cdot \log_2^2 n = \Theta(n^{\log_{b} a}\cdot lg^k n) = \Theta(n^{\frac{1}{2}}\cdot lg^k n) $ - Yes, if $k = 2$.
+    \end{itemize}
+    Answer: $\Theta(\sqrt{n} \cdot lg^{k+1}n) = \Theta(\sqrt{n} \cdot lg^3 n)$
+
+
+    
+\item For $ T(n) = 4 T\left(\frac{3n}{8}\right) + n^2 $, where $ a = 4 > 0 $, $ b = \frac{8}{3} > 1 $, and $ f(n) = n^2 $, the recurrence relation satisfies the conditions of the Master Theorem:
+    \begin{itemize}
+        \item $ \log_{b} a =\log_{\frac{8}{3}} 4 \approx 1.413 $\\
+        \item Case 1: \\
+        \hspace{30mm} $ f(n) = n^2 = O(n^{\log_{b} a - \epsilon})= O(n^{1.413 - \epsilon}) $ - No, because $ \epsilon > 0 $ and $ n^2 $ grows faster.
+        \item Case 2: \\
+        \hspace{30mm} $ f(n) = n^2  = \Theta(n^{\log_{b} a}\cdot \log^k n)= \Theta(n^{1.413} \cdot \log^k n) $ - No, because $ n^2 $ grows faster than $ n^{1.413} \cdot \log^k n $ for all $ k $.
+        \item Case 3: \\
+        \hspace{30mm} $ f(n) = n^2 = \Omega(n^{\log_{b} a + \epsilon}) = \Omega(n^{1.413 + \epsilon}) $ - Yes. For $ \epsilon \approx 0.6 $, $ n^{1.413 + \epsilon} $ satisfies the condition. \\
+        \hspace{30mm} Let's check the regularity condition $ a \cdot f\left(\frac{n}{b}\right) \leq c \cdot f(n) $: \\
+        \hspace{35mm} $ 4 \cdot \frac{9 \cdot n^2}{64} \leq c \cdot n^2 $ \\
+        \hspace{35mm} $ \frac{9 \cdot n^2}{16} \leq c \cdot n^2 $, if $ c = \frac{9}{16} < 1 $ \\
+        \hspace{35mm} $ n^2 \leq n^2 $. This condition is satisfied.
+    \end{itemize}
+    Answer: $ \Theta(n^2) $
+
+\item For $T(n) = 7 T(n / 5) + \log_2 \left(n!\right)$, where $ a = 7 > 0 $, $ b = 5 > 1 $, and $ f(n) = \log_2 \left(n!\right) $, the recurrence relation satisfies the conditions of the Master Theorem:
+    \begin{itemize}
+        \item $\log_{b} a = \log_{5} 7 \approx 1.209 $
+        \item Case 1: \\
+        \hspace{30mm} $ f(n) = \log_2 \left(n!\right) = O(n^{\log_{b} a - \epsilon}) = O(n^{1.209 - \epsilon}) $ - Yes, because $\log_2 \left(n!\right)$ does not grow faster than $n^{1.209}$.
+    \end{itemize}
+    Answer: $\Theta(n^{\log_{5} 7})$
+
+
+
+    
+\item For $T(n) = 3 T(\sqrt[3]{n}) + n$, the recurrence relation does not satisfy the conditions of the Master Theorem, because $T(\sqrt[3]{n})$ does not match the form $T(n / b)$, where $b > 1$ is a constant. Therefore, the Master Theorem cannot be applied directly.
+
+
+\item For $T(n) = \frac{1}{3} T(3n) + n \log_3 n$, the recurrence relation does not satisfy the conditions of the Master Theorem, because $b = \frac{1}{3}$ does not match $b>1$. Therefore, the Master Theorem cannot be applied directly.  
+  \end{enumerate}
+  \color{black}
+
+  \clearpage
+  \item \textbf{(+1\% extra credit)} Consider the following recurrence with parameters $a > 1$ and $b > 1$:
+  \[
+    T(n) = a T(n / b) + n^{4 \log_a b} \ln^{a - 2b}  n
+  \]
+
+  Specify \textbf{precise} conditions on $a$ and $b$ such that
+  \begin{enumerate}[(i)]
+    \item Case 1 of the master theorem applies to $T(n)$
+    \item Case 2 of the master theorem applies to $T(n)$
+    \item Case 3 of the master theorem applies to $T(n)$
+    \item The master theorem is not applicable to $T(n)$
+  \end{enumerate}
+
+  Provide a brief justification in each case.
+
+  \color{blue}
+  \textbf{Answer:} \emph{(replace with your answer)} \\
+  \textbf{Justification: } \emph{(replace with your justification)}
+  \color{black}
+
+\end{enumerate}
+
+\begin{thebibliography}{BoasWrench}
+
+\bibitem[CLRS]{Cormen2022}
+Cormen, T.H., Leiserson, C.E., Rivest, R.L. and Stein, C., 2022. \emph{Introduction to algorithms, Fourth Edition}. MIT press.
+
+\end{thebibliography}
+
+\end{document}

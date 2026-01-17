@@ -1,0 +1,207 @@
+\documentclass[dvipsnames]{article}
+\usepackage[english]{babel}
+\usepackage{multirow}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{fancyhdr}
+\usepackage{enumerate}
+
+\begin{document}
+\section*{Week 6. Problem set (solutions by \textcolor{blue}{Karim Khabibrakhmanov})}
+
+\thispagestyle{fancy}
+\lhead{Karim Khabibrakhmanov (\texttt{k.khabibrakhmanov@innopolis.university}), group B24-DSAI-05}
+
+\begin{enumerate}
+
+  \item Apply \textsc{Counting-Sort}~\cite[\S 8.2]{Cormen2022} to the following input array
+    where each column corresponds to one item with its numeric key and single-character satellite data:
+    \begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c|c|c| }
+     \hline
+     2 & 6 & 2 & 7 & 6 & 6 & 3 & 4 & 1 & 6 & 2 & 0 & 7  \\
+     \hline
+     U & W & A & M & E & S & E & A & O & O & R & Y & E \\
+     % dtogarngreiu
+     % urdoinggreat
+     \hline
+    \end{tabular}
+    \end{center}
+
+    You \textbf{must} demonstrate the final state of both auxiliary arrays used in the algorithm,
+    as well as the final state of the output array.
+
+    \color{blue}
+    \textbf{Answer:}\\
+    $Range = maxKey - minKey + 1 = 7 - 0 + 1 = 8$ \text{---} size of count table\\
+    The count table that stores the number of repetitions for each key\\
+    \begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+     \hline
+     Keys & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+     \hline
+     Amount of repetitions & 1 & 1 & 3 & 1 & 1 & 0 & 4 & 2 \\
+     % dtogarngreiu
+     % urdoinggreat
+     \hline
+    \end{tabular}
+    \end{center}
+   The transformed count table, which stores the index for each occurrence from the array. Starting from the end of the array, we take the key, go to our transformed table, take out the index and insert it into a new already sorted array, while reducing the index by 1\\
+    \begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+     \hline
+    Keys & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+     \hline
+     \hline
+     Indexes before sorting & 1 & 2 & 5 & 6 & 7 & 7 & 11 & 13 \\
+     \hline
+     Indexes after sorting & 0 & 1 & 2 & 5 & 6 & 7 & 7 & 11 \\
+     % dtogarngreiu
+     % urdoinggreat
+     \hline
+    \end{tabular}
+    \end{center}
+
+    The final sorted table:\\
+    
+    \begin{center}
+    \begin{tabular}{ |c|c|c|c|c|c|c|c|c|c|c|c|c|c| }
+     \hline
+     Keys & 0 & 1 & 2 & 2 & 2 & 3 & 4 & 6 & 6 & 6 & 6 & 7 & 7  \\
+     \hline
+     Characters & Y & O & U & A & R & E & A & W & E & S & O & M & E \\
+     % dtogarngreiu
+     % urdoinggreat
+     \hline
+    \end{tabular}
+    \end{center}
+    
+    \color{black}
+
+  \item Explain how \textsc{Bucket-Sort}~\cite[\S 8.4]{Cormen2022} can be used to efficiently sort the points
+    distributed uniformly\footnote{Meaning that for each point the probability of being in any region $R$
+    inside the disk is directly proportional to the area of that region: $P(R) = \frac{\mathsf{area}(R)}{\pi}$.}
+    in a unit disk $\{ \langle x, y \rangle \mid x^2 + y^2 \leq 1 \}$
+    by their distance\footnote{We consider the standard Euclidean distance $\sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2}$.} from the origin $\langle 0, 0 \rangle$:
+
+    \begin{enumerate}
+      \item Explain the idea of splitting the points into buckets.
+
+      \color{blue}
+      \textbf{Answer:}\\
+      To begin with, for each coordinate, we will calculate its distance from origin using the $\sqrt{x^2 + y^2}$.Since our points are in a circle, we can divide our circle into arcs, each with a range of $\frac{\text{Radius = 1}}{\text{Amount of coordinates}}$. In the process of writing coordinates to buckets for each distance, we will take its specific arc. This way we will have an array of buckets. Next, we will sort each bucket. At the end, we will write our sorted coordinates into the array.\\
+      \color{black}
+
+      \item Show how to assign each point to a bucket in $\Theta(1)$ time.
+
+      \color{blue}
+      \textbf{Answer:}
+      \begin{itemize}
+        \item For each point, we calculate the distance using the formula $\sqrt{x^2 + y^2}$ - it takes $\Theta(1)$
+        \item Next, we calculate the bucket index in which we put our coordinates - it also takes $\Theta(1)$
+        \item And at the end we write our coordinates in the bucket - it is also $\Theta(1)$
+        \item The result: $\Theta(1+1+1 ) = \Theta(1)$
+      \end{itemize}
+      \color{black}
+
+      \item For each bucket, compute the probability of a random point to be assigned to it.
+            Ensure that the sum of probabilities is $1$.
+
+      \color{blue}
+      \textbf{Answer:}\\
+      \begin{itemize}
+      \item Let's use the formula\footnotemark[1] $P(R) = \frac{\mathsf{area}(R)}{\pi}$ given to us and calculate area(R)
+       \item Each area has a range of $\frac{1}{\text{amountOfCoordinates = n}}$
+       \item To calculate this area, we need to subtract the area of the circle along the outer arc from the area of the circle of the inner arc.
+       \item Let k be the index of an arbitrary bucket, then the formula will look like:\\
+       \begin{enumerate}
+       \item$\mathsf{area}(R) = \pi \cdot r_{out}^2 - \pi \cdot r_{in}^2 = \pi \cdot(\frac{k^2}{\text{n}^2} - \frac{(k-1)^2}{\text{n}^2}) = \pi \cdot\frac{2\cdot k - 1}{\text{n}^2}$
+        \item$P(R) = \frac{\mathsf{area}(R)}{\pi} = \frac{\pi \cdot\frac{2\cdot k - 1}{\text{n}^2}}{\pi} = \frac{2\cdot k - 1}{\text{n}^2}$
+       \end{enumerate}
+       \item Let's check if the sum fits the condition (sum = 1).\\
+       \begin{enumerate}
+            $\sum_{k=1}^{\text{n}} \frac{2\cdot k - 1}{\text{n}^2} = 
+            \frac{1}{\text{n}^2} \cdot \sum_{k=1}^{\text{n}} (2\cdot k - 1) = \frac{1}{\text{n}^2} \cdot \frac{(2\cdot \text{n} - 1 + 1) \cdot \text{n}}{2} = \frac{\text{n}^2}{\text{n}^2} = 1$ - Corresponds!
+        \end{enumerate}
+        \item Probability of a random point:
+        \begin{enumerate}
+            $P(R) = \frac{2\cdot k - 1}{\text{n}^2}$
+        \end{enumerate}
+      \end{itemize}
+      
+      \color{black}
+
+      \item Argue that the average case time complexity for your algorithm is $\Theta(n)$,
+        relying on the result for standard \textsc{Bucket-Sort}~\cite[\S 8.4]{Cormen2022}.
+
+      \color{blue}
+      \textbf{Answer:}
+        \begin{itemize}
+            \item Since in (b) we calculated that it takes $\Theta(1)$ to write each element, then for all elements - $\Theta(n)$.
+            \item Since, according to our algorithm, each coordinate is in one bucket, sorting each element takes $\Theta(1)$. Then for all coordinates it will be $\Theta(n)$.
+             \item Writing our bucket into a new sorted array also takes $\Theta(n)$
+             \item The result: $\Theta(n+n+n) = \Theta(n)$
+        \end{itemize}
+      \color{black}
+    \end{enumerate}
+
+  \item Consider a modification of the \textsc{Merge-Sort} algorithm~\cite[\S 2.3]{Cormen2022}
+  that stops recursion when the size of subarray becomes less than or equal to $k$ ($k \leq n$).
+  For arrays of size $\leq k$, the modified algorithm performs \textsc{Bucket-Sort}~\cite[\S 8.4]{Cormen2022}
+  with a randomized \textsc{Quick-Sort}~\cite[\S 7.3]{Cormen2022} to sort each bucket.
+  Answer the following questions about the modified algorithm. Provide justification (4--6 sentences) for each answer.
+    \begin{enumerate}
+      \item What is the worst case time complexity in terms of $n$ and $k$?
+
+      \color{blue}
+      \textbf{Answer:}
+      $\Theta(n \cdot \log \frac{n}{k} + n \cdot k)$
+
+      \textbf{Justification:}\\
+      The recursion of division into k parts takes $\Theta(log \frac{n}{k})$ and for each division $\Theta(n)$ connections.\\
+        In the worst case, for all $\frac{n}{k}$ subarrays, we have all the elements written to one bucket. Because of this, Quick-Sort spends $k^2$\\
+        $\frac{n}{k} \cdot \Theta(k^2) =\Theta( n \cdot k)$ in the worst case.\\
+        $\Theta(n \cdot log \frac{n}{k}) + \Theta(n \cdot k)=\Theta(n \cdot log \frac{n}{k} + n \cdot k)$
+      \color{black}
+
+      \item What is the best case time complexity in terms of $n$ and $k$?
+
+      \color{blue}
+      \textbf{Answer:} $\Theta(n)$\\
+      \textbf{Justification:} \\
+      If our array is already sorted and we won't actually apply Merge-Sort when $n=k$:\\
+     For Bucket-Sort, we will write, then if each bucket contains only one element, then Quick-Sort will be performed for all element in $\Theta(1) \cdot n = \Theta(n)$. Next, we assemble it into a new sorted array in $\Theta(n)$ time.\\
+        $\Theta(n \cdot log \frac{n}{n}) + \Theta(n)=\Theta(n)$
+      \color{black}
+
+      \item What is the average\footnote{assuming all elements in the input array are distinct and any initial order in the array is equally likely} case time complexity in terms of $n$ and $k$?
+
+      \color{blue}
+      \textbf{Answer:} $\Theta(n \cdot \log \frac{n}{k} + n \cdot \log k)$
+
+      \textbf{Justification:} \\
+       The recursion of division into k parts takes $\Theta(log \frac{n}{k})$ and for each division $\Theta(n)$ connections.\\
+       In average, for all subarrays of size $\frac{n}{k}$, Quick-Sort spends an average time of $\Theta(k \cdot \log k)$\\
+        $\frac{n}{k} \cdot \Theta(k \cdot \log k) = \Theta(n \cdot \log k)$ in the average case.\\
+        $\Theta(n \cdot log \frac{n}{k}) + \Theta(n \cdot \log k)=\Theta(n \cdot log \frac{n}{k}+n \cdot \log k)$
+      \color{black}
+      \color{black}
+    \end{enumerate}
+  The answer should be given using $\Theta$-notation. \\
+  Provide a \textbf{brief} justification for each case (1--2 sentences).
+
+\end{enumerate}
+
+\begin{thebibliography}{BoasWrench}
+
+\bibitem[CLRS]{Cormen2022}
+Cormen, T.H., Leiserson, C.E., Rivest, R.L. and Stein, C., 2022. \emph{Introduction to algorithms, Fourth Edition}. MIT press.
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,195 @@
+\documentclass[dvipsnames]{article}
+\usepackage[english]{babel}
+\usepackage{multirow}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{fancyhdr}
+
+\begin{document}
+\section*{Week 2. Problem set (solutions by Karim Khabibrakhmanov)}
+
+\thispagestyle{fancy}
+\lhead{Karim Khabibrakhmanov (\texttt{k.khabibrakhmanov@innopolis.university}), group B24-DSAI-05}
+
+\begin{enumerate}
+
+  \item In \cite[\S 16.1]{Cormen2022}, a stack with an extra operation \textsc{Multipop} is discussed.
+  What is the total cost $c$ of executing $n$ of the stack operations \textsc{Push}, \textsc{Pop}, and \textsc{Multipop},
+  assuming that the stack begins with $k$ objects?
+  The answer must consist of exact lower and upper bounds given as formulae in terms of $n$, $k$ (not asymptotic complexity!).
+  Provide a brief justification (2--4 sentences).
+  Formulas and equations without explanation will not be accepted.
+
+  \color{blue}
+  \textbf{Answer:} \emph{$n \leq c \leq 2n + k - 2 $} \\
+  \textbf{Justification: } \\
+  Let’s consider the cases for both the highest and lowest total cost:\\
+  \hspace*{5mm}
+{\textbf{1.} The upper bound occurs when  \textbf{n - 1}  \textbf{\textsc{Push}} operations are executed, each costing \textbf{1}  unit, followed by a single \textbf{\textsc{Multipop}} that removes all elements from the stack. By that time, the stack contains  \textbf{n - 1}   newly added elements plus the  \textbf{k}   initial elements. Summing the costs, we get:\\
+\[
+(n - 1) + (n - 1 + k) = 2n + k - 2
+\]
+\[
+c \leq 2n + k - 2
+\]
+   \hspace*{5mm}
+  \textbf{2.}  The lower bound for the total cost is at least  \textbf{n}  because we perform exactly  \textbf{n}  operations. If all of them are \textbf{\textsc{Push}} or \textbf{\textsc{Pop}}, each costs \textbf{1}. Since  \textbf{k}  is unknown, we assume only \textbf{\textsc{Push}} operations, leading to the minimum cost:\\
+\[
+n \leq c
+\]
+
+\\
+  \hspace*{5mm}
+  \textbf{3.}  Total cost of n operations: \[n \leq c \leq 2n + k - 2\]
+
+  
+  \color{black}
+
+  \item A sequence of \textsc{Push}, \textsc{Pop}, and \textsc{Clean} operations is performed on an initially empty stack.
+  When an element is first \textsc{Push}ed to the stack, it is marked as \textbf{new}.
+  The \textsc{Clean} operations inspects all elements of the stack:
+  \begin{itemize}
+    \item Every \textbf{new} element is marked as \textbf{old} (in constant time).
+    \item Every \textbf{old} element is removed from the stack (in constant time).
+  \end{itemize}
+  
+  Perform amortized time complexity analysis using the \textbf{accounting method}~\cite[\S 16.2]{Cormen2022}
+  for a sequence of \textsc{Push}, \textsc{Pop}, and \textsc{Clean} operations performed on an initially empty stack:
+  \begin{enumerate}
+    \item Specify actual cost, amortized cost, and accumulated credit for each operation.
+    Assume that $n_i$ is the size of stack before operation and $k_i$ is number of \textbf{old} elements in the stack.
+
+  % \large
+  \begin{center}
+  \bgroup
+  \def\arraystretch{1.5}%  1 is the default, change whatever you need
+  \begin{tabular}{ |c||c|c|c|p{5cm}| }
+   \hline
+   Operation & Actual cost ($c_i$) & Amortized cost ($\widehat{c_i}$) & Credit & Justification \\
+   \hline
+   \hline
+   \textsc{Push} & \(1\) & \(2\) & \(1\) & The actual cost of this operation is 1, and at the same time 1 credit is accumulated to cover the costs of future item removal operations\\
+   \hline
+   \textsc{Pop} & \(1\) & \(0\) & \(-1\) & For this operation, the costs are covered by the credits that were initially allocated for the deletion \\
+   \hline
+    \textsc{Clean} & \( n_i \) & \( n_i - k_i \) & \( -k_i \) & The cost is covered by the credits for old elements \( k_i \), and the remaining cost applies to elements transitioning from new to old, \( n_i - k_i \). \\
+    \hline
+  \end{tabular}
+  \egroup
+  \end{center}
+  \normalsize
+
+    \item Prove that the total amortized cost of a sequence of $n$ operations provides an upper bound on the total actual cost of the sequence.
+
+    \color{blue}
+    \begin{proof}\\
+    For each Push operation, we save 1 credit. For each Pop operation, there must have been a corresponding Push that covers its cost. For each old element in the Clean operation, we spend 1 credit, and for each new element in Clean, we incur a cost of 1, but this is not covered by credits.\\
+    Consequently, the total amortized cost is the upper bound for the total actual cost, since the loans cover the actual costs of Pop and Clean operations for the old elements, and the remaining cost for the new elements will not be spent from loans.\\
+    \end{proof}
+    \color{black}
+
+    \item Write down the asymptotic complexity for a sequence of $n$ operations.
+
+    \color{blue}
+    \textbf{Answer:} $O(n)$ \\
+    \textbf{Derivation of the answer: }\\
+    \hspace*{7mm}
+    \textbf{1.} Each Push spends one actual $O(1)$ cost and an $O(1)$ removal cost \\
+    \hspace*{6.6mm}
+    \textbf{2.} Each Pop operation is already covered in advance by a credit from the Push operation $O(0)$\\
+    \hspace*{7mm}
+    \textbf{3.} Each Clean operation for old elements has already been closed in advance by a credit from the Push operation, and for new elements it is $O(1)$\\
+    \hspace*{7mm}
+    \textbf{Conclusion:} Thus, the total amortized cost of a sequence of n operations is no more than $O(n)$.\\
+    \color{black}
+  \end{enumerate}
+
+  \item Solve the previous exercise using the \textbf{potential method}~\cite[\S 16.3]{Cormen2022}:
+  \begin{enumerate}
+    \item Define the potential function $\Phi$ on a stack;
+    the potential function may depend on the size $n$ of the stack and on the number $k$ of \textbf{old} elements in the stack;
+    \color{blue}
+    \\ \textbf{Answer:} \emph{n}
+    \color{black}
+    \item Compute $\Phi(D_i) - \Phi(D_{i-1})$ for each possible $i$th operation (\textsc{Push}, \textsc{Pop}, \textsc{Clean})
+    \color{blue}
+    \begin{itemize}
+    \item \textsc{Push}: $\Phi(D_i) - \Phi(D_{i-1}) = (n_i + 1) - n_i = 1$
+    \item \textsc{Pop}: $\Phi(D_i) - \Phi(D_{i-1}) = (n_i - 1) - n_i = -1$
+    \item \textsc{Clean}: $\Phi(D_i) - \Phi(D_{i-1}) = (n_i - k_i) - n_i = -k_i$
+    \end{itemize}
+    \color{black}
+\item Compute amortized cost for \textsc{Clean} using your potential function;
+\color{blue} \\
+\textbf{Answer:} \emph{$\hat{c_i} = c_i + (\Phi(D_i) - \Phi(D_{i-1})) = n_i + ((n_i - k_i) - n_i) = n_i - k_i$}
+\color{black}
+
+\item Write down amortized asymptotic complexity for \textsc{Clean}.
+\color{blue} \\
+\textbf{Answer:} \emph{  $O(n)$  } \\
+\textbf{Derivation of the answer: }\\
+\hspace*{7mm}
+Since the Clean operation processes all n elements, its total cost is proportional to the number of elements, which is $O(n)$. Therefore, the amortized cost of this operation is also $O(n)$\\
+\color{black}
+  
+
+  % \item \textbf{(+0.5\% extra credit)} Show how to implement an improved version of \textsc{Clean} operation from the previous exercise,
+  %   such that it works in $\Theta(k)$ (worst case) where $k$ is the number of \textbf{old} elements in the stack:
+  %   \begin{enumerate}
+  %     \item Provide the pseudocode of \textsc{Clean} for an array based implementation of Stack
+  %     \item Provide the pseudocode of \textsc{Clean} for a linked list based implementation of Stack
+  %     \item Explain briefly for each implementation why it works in $\Theta(k)$
+  %   \end{enumerate}
+
+  % \clearpage
+  % \item \textbf{(+1\% extra credit)} A sorted collection of $n$ integers is represented by a linked list of $k$ sorted arrays.
+  %   The arrays are of sizes $2^{b_0}, 2^{b_1}, \ldots, 2^{b_k}$, such that $b_0 < b_1 < \ldots < b_k$.
+  
+  %   To \textsc{Add} an integer $i$ in a sorted collection, we add a singleton array with $i$ to the beginning of the list of arrays. Then, to ensure the invariant, we resize the arrays: going from smaller arrays to larger, if two smallest arrays have the same size, we \textsc{Merge} them (using linear time merging as in \textsc{Merge-Sort}) and repeat the process until the smallest array is unique.
+  
+  %   For example,
+  %   \begin{itemize}
+  %     \item a collection $\{1, 2, 3, 4, 5, 8, 9, 10, 11, 12\}$ can be represented by a list of three arrays: \\
+  %       \[
+  %       \boxed{2} \to \boxed{1, 3} \to \boxed{4, 5, 6, 8, 9, 10, 11, 12}
+  %       \]
+  %     \item inserting $7$ in this collection, we first add a singleton array
+  %       $
+  %         \boxed{7} \to \boxed{2} \to \boxed{1, 3} \to \boxed{4, 5, 6, 8, 9, 10, 11, 12}
+  %         $
+  %     \item then, since we have two arrays of size 1, we \textsc{Merge} them
+  %       $
+  %         \boxed{2, 7} \to \boxed{1, 3} \to \boxed{4, 5, 6, 8, 9, 10, 11, 12}
+  %         $
+  %     \item then, since we have two arrays of size 2, we \textsc{Merge} them
+  %       $
+  %         \boxed{1, 2, 3, 7} \to \boxed{4, 5, 6, 8, 9, 10, 11, 12}
+  %         $
+  %     \item now, since we have only one array of the smallest size, we stop.
+  %   \end{itemize}
+  
+  %   Perform amortised time complexity analysis using the \textbf{accounting method}
+  %   for a sequence of $n$ \textsc{Add} operations performed on an initially empty sorted collection:
+  %   \begin{enumerate}
+  %     \item Specify actual cost, amortized cost, and accumulated credit for \textsc{Add}\footnote{Hint: take inspiration in example for incrementing a binary counter example~\cite[Section~16.2]{Cormen2022}; for each element in the collection there should be enough credit for all merge events for that element.};
+  %     the amortized cost may depend on the number $n$ of operations in the sequence;
+  %     \item Prove that the total amortized cost of a sequence of n operations provides an upper bound
+  %     on the total actual cost of the sequence.
+  %     \item Write down the asymptotic complexity for a sequence of $n$ operations.
+  %     \item Write down amortized asymptotic complexity for \textsc{Add}.
+  %   \end{enumerate}
+\end{enumerate}
+
+\begin{thebibliography}{BoasWrench}
+
+\bibitem[CLRS]{Cormen2022}
+Cormen, T.H., Leiserson, C.E., Rivest, R.L. and Stein, C., 2022. \emph{Introduction to algorithms, Fourth Edition}. MIT press.
+
+\end{thebibliography}
+
+\end{document}

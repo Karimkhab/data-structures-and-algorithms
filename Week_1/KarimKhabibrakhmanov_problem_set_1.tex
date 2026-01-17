@@ -1,0 +1,185 @@
+\documentclass[dvipsnames]{article}
+\usepackage[english]{babel}
+\usepackage{multirow}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{minted}
+\usepackage{amsthm}
+\usepackage{mathtools}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{fancyhdr}
+
+\begin{document}
+\section*{Week 1. Problem set (solutions by Karim Khabibrakhmanov)}
+
+\thispagestyle{fancy}
+\lhead{Karim Khabibrakhmanov (\texttt{k.khabibrakhmanov@innopolis.university}), group B24-DSAI-05}
+
+\begin{enumerate}
+  \item
+    Compute asymptotic worst case time complexity of the following algorithm (see pseudocode conventions in \cite[\S 2.1]{Cormen2022}).
+    You \textbf{must} use $\Theta$-notation.
+    For justification, provide execution cost and frequency count for each line in the body of the \texttt{secret} procedure.
+    Optionally, you may provide the details for the computation of the running time $T(n)$ for worst case scenario.
+    Proof for the asymptotic bound is not required for this exercise.
+
+    \begin{minipage}{0.55\textwidth}
+      \begin{minted}[linenos,escapeinside=||]{sql}
+/* A is a 0-indexed array,
+  * n is the number of items in A */
+|\color{blue}secret|(A, n):
+  |\color{red}for| i = 1 to n
+    s := 1
+    j := i - 1
+    |\color{red}while| j < n |\color{teal}and| A[j] |$\geq$| A[i-1]
+      j := j + s
+      s := s + 2
+    |\color{teal}exchange| A[i-1] |\color{teal}with| A[min(j, n - 1)]
+      \end{minted}
+    \end{minipage}%
+    \begin{minipage}{0.4\textwidth}
+      \small
+      \begin{tabular}{ c | c | c }
+      Line & Execution Cost & Frequency Count \\ 
+      \hline
+      1 & --- & --- \\  
+      2 & --- & --- \\
+      3 & --- & --- \\
+      4 &     &  \\
+      5 &     &  \\
+      6 &     &  \\
+      7 &     &  \\
+      8 &     &  \\
+      9 &     &  \\
+      10 &    &  \\
+      \end{tabular}
+    \end{minipage}
+
+\color{blue}
+\textbf{Answer:} \emph{$\Theta(n^2)$}. \\
+\textbf{Justification: } \emph{cost and frequency count is presented in the following table:} \\
+    \begin{minipage}{0.4\textwidth}
+      \small
+      \begin{tabular}{ c | c | c }
+      Line & Execution Cost & Frequency Count \\ 
+      \hline
+      1 & 0 & 1 \\  
+      2 & 0 & 1 \\
+      3 & $c_0$ & 1 \\
+      4 &  $c_1$   & n+1 \\
+      5 &  $c_2$   & n \\
+      6 &  $c_3$   & n \\
+      7 &  $c_4$   & \[ \sum_{i=1}^{n} t_i \] \\
+      8 &  $c_5$  & \[ \sum_{i=1}^{n} (t_i-1) \] \\
+      9 &   $c_6$  & \[ \sum_{i=1}^{n} (t_i-1) \] \\
+      10 &  $c_7$  & n \\
+      \end{tabular}
+    \end{minipage}
+
+    \emph{(optional part) From this table, we conclude}
+$$T(n) = c_0 \cdot 1 + c_1 \cdot (n+1) + c_2 \cdot n + c_3 \cdot n + c_4 \cdot \sum_{i=1}^{n} t_i + c_5 \cdot \sum_{i=1}^{n} (t_i-1) + c_6 \cdot \sum_{i=1}^{n} (t_i-1) + c_7 \cdot n = \Theta(n^2)$$
+
+\color{black}
+  \item Indicate, for each pair of expressions (A, B) in the table below whether $A = O(B)$, $A = o(B)$, $A = \Omega(B)$, $A = \omega(B)$, or $A = \Theta(B)$. Write your answer in the form of the table with \emph{YES} or \emph{NO} written in each cell:
+
+    \begin{center}
+    \bgroup
+    \def\arraystretch{1.5}
+    \begin{tabular}{ |c|c||c|c|c|c|c| }
+     \hline
+     $A$ & $B$ & $A = O(B)$ & $A = o(B)$ & $A = \Omega(B)$ & $A = \omega(B)$ & $A = \Theta(B)$ \\
+     \hline
+     \hline
+     $1 + \sin(n)$ & $\left(1 + \frac{1}{n}\right)^{\frac{1}{n}}$ & \textcolor{blue}{\emph{YES}} & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{NO}} \\
+     \hline
+     $\sqrt[5]{n}$ & $\log_3^2 n$ & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{YES}}  & \textcolor{blue}{\emph{YES}}  & \textcolor{blue}{\emph{NO}} \\
+     \hline
+     $n^2$ & $\log_2^n n$ & \textcolor{blue}{\emph{YES}} & \textcolor{blue}{\emph{YES}} & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{NO}} \\
+     \hline
+     $(1 + \frac{1}{10^{100}})^n$ & $n^{(10^{100})}$ & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{YES}} & \textcolor{blue}{\emph{YES}} & \textcolor{blue}{\emph{NO}} \\
+     \hline
+     $\log_2 \left( (n + 1)! \right)$ & $n \log_2 n$ & \textcolor{blue}{\emph{YES}} & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{YES}} & \textcolor{blue}{\emph{NO}} & \textcolor{blue}{\emph{YES}} \\
+     \hline
+    \end{tabular}
+    \egroup
+    \end{center}
+
+  \clearpage
+  \item Let $f$ and $g$ be functions from positive integers to positive reals.
+    Assume $f(n) > n$ for $n > 2025$.
+    Using the formal definition of asymptotic notation~\cite[\S 3.2]{Cormen2022}, prove \emph{formally} that
+    \[
+      \min(f(n) - \sqrt{n}, g(n) + n) = O(f(n) + g(n))
+    \]
+  \color{blue}
+  \begin{proof}
+    \emph{By definition of big-$O$ notation, we need to show that there exist constant c and $n_0$ such that for all n $ \geq $ $n_0$}
+    \[
+      \min(f(n) - \sqrt{n}, g(n) + n) \leq \ c * (f(n) + g(n))
+    \]
+
+    \emph{Let c = $1$ and $n_0$ = $2025$}
+
+    \emph{By assumption, we have $f(n) > n$ for $n > 2025$}
+
+    \emph{Consider the following cases:}\\
+    \hspace*{3mm}
+    1) if $(f(n) - \sqrt{n}) \geq (g(n) + n)$:\\
+    \hspace*{10mm}
+    $g(n) + n \leq\ 1 * (f(n) + g(n))$\\
+    \hspace*{10mm}
+    $g(n) + n \leq\ 1 * f(n) + 1 * g(n)$\\
+    \hspace*{8mm}
+    Here we subtract $g(n)$ from both sides.\\
+    \hspace*{10mm}
+    $n \leq\ f(n)$\\
+    \hspace*{8mm}
+    Since we have established that $ f(n) > n $ for $ n > 2025 $, the inequality holds true.\\ 
+    \hspace*{8mm}
+    Thus, the condition $ n \leq f(n) $ is satisfied for $ n > 2025 $.\\
+
+    
+    \hspace*{3mm}
+    2) if $(f(n) - \sqrt{n}) \leq (g(n) + n)$:\\
+    \hspace*{10mm}
+    $f(n) - \sqrt{n} \leq\ 1 * (f(n) + g(n))$\\
+    \hspace*{10mm}
+    $f(n) - \sqrt{n} \leq\ 1 * f(n) + 1 * g(n)$\\
+    \hspace*{8mm}
+    Here we subtract $f(n)$ from both sides.\\
+    \hspace*{10mm}
+    $- \sqrt{n} \leq\ g(n)$\\
+    \hspace*{8mm}
+    Since $ g(n) $ is a positive function and $ n > 2025 $, it follows that $ \sqrt{n} $ is also positive. Therefore, \\
+    \hspace*{8mm}
+    $ -\sqrt{n} $ is negative. This implies that the inequality $ -\sqrt{n} \leq g(n) $ holds true, as a negative\\
+    \hspace*{8mm}
+    value is always less than or equal to a positive value. Thus, the condition is satisfied.\\
+
+    
+    \hspace*{3mm}    
+    3) Conclusion:\\
+    \hspace*{8mm}
+    We have examined all possible cases for Big-O, and both have been found to be true.\\
+    \hspace*{8mm}
+    Therefore, the statement $ \min(f(n) - \sqrt{n}, g(n) + n) = O(f(n) + g(n)) $ is also true.\\
+
+    \emph {QED.}\\
+
+
+  \end{proof}
+  \color{black}
+
+\end{enumerate}
+
+\begin{thebibliography}{TheLongestRefName}
+
+\bibitem[CLRS]{Cormen2022}
+Cormen, T.H., Leiserson, C.E., Rivest, R.L. and Stein, C., 2022. \emph{Introduction to algorithms, Fourth Edition}. MIT press.
+
+%\bibitem[Goldrich]{Goldrich2014}
+%M. T. Goodrich, R. Tamassia, and M. H. Goldwasser. \emph{Data Structures and Algorithms in Java.} WILEY 2014.
+\end{thebibliography}
+
+\end{document}
